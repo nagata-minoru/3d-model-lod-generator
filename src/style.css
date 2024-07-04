@@ -1,0 +1,31 @@
+body {
+  background-color: #e6ffee;
+}
+
+canvas {
+  display: block;
+  margin: 20px auto;
+}
+
+.container {
+  margin-top: 20px;
+}
+
+.btn-custom {
+  background-color: #b3e6b3;
+  border: none;
+}
+
+.btn-custom:hover {
+  background-color: #99cc99;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: bold;
+  color: #333;
+}
