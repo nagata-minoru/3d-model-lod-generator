@@ -2,11 +2,13 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
+const spinner = document.getElementById('spinner') as HTMLElement;
+const overlay = document.getElementById('overlay') as HTMLElement;
 let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, controls: OrbitControls;
 let lodModel: THREE.Object3D | null = null;
 
 const createLight = (scene: THREE.Scene, x: number, y: number, z: number): void => {
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
   directionalLight.position.set(x, y, z);
   scene.add(directionalLight);
 }
@@ -19,7 +21,7 @@ const animate = (): void => {
 
 const displayModel = (dataUrl: string): void => {
   const gltfLoader = new GLTFLoader();
-  gltfLoader.load(dataUrl, (gltf) => {
+  gltfLoader.load(dataUrl, gltf => {
     const model = gltf.scene;
     scene.add(model);
     createBoundingBox(model);
@@ -33,11 +35,7 @@ const createBoundingBox = (model: THREE.Object3D): void => {
   box.getSize(size);
 
   const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-  const boxMaterial = new THREE.MeshBasicMaterial({
-    color: 0x5b4c47,
-    opacity: 0.5,
-    transparent: true
-  });
+  const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x5b4c47 });
 
   const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
   boxMesh.position.set(
@@ -48,8 +46,8 @@ const createBoundingBox = (model: THREE.Object3D): void => {
   scene.add(boxMesh);
 }
 
-const loadModels = async (lodPath: string): Promise<void> => {
-  if (lodModel) scene.remove(lodModel);
+const loadModels = (lodPath: string) => {
+  lodModel && scene.remove(lodModel);
 
   const gltfLoader = new GLTFLoader();
   gltfLoader.load(lodPath, (gltf) => {
@@ -64,7 +62,6 @@ const loadModels = async (lodPath: string): Promise<void> => {
 document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.querySelector('input[name="file"]') as HTMLInputElement;
   fileInput.oninput = (event: Event) => {
-    const target = event.target as HTMLInputElement;
     // 初期化
     scene = new THREE.Scene();
 
@@ -87,38 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
     createLight(scene, -5, -10, -7.5);
     camera.position.z = 5;
 
-    const file = target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = function (e: ProgressEvent<FileReader>) {
-        if (e.target?.result) {
-          displayModel(e.target.result as string);
-        }
-      }
-      reader.readAsDataURL(file);
-    }
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => e.target?.result && displayModel(e.target.result as string);
+    reader.readAsDataURL(file);
   };
 
-  const uploadForm = document.getElementById('uploadForm') as HTMLFormElement;
-  uploadForm.addEventListener('submit', async function (event: Event) {
+  (document.getElementById('uploadForm') as HTMLFormElement).onsubmit = async function (event: Event) {
+    spinner.classList.add('show');
+    overlay.classList.add('show');
+
     event.preventDefault();
-    const formData = new FormData(this);
+    const formData = new FormData(event.target as HTMLFormElement);
 
     try {
-      const response = await fetch('/api/create_lod', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      loadModels(url);
+      const response = await fetch('/api/create_lod', { method: 'POST', body: formData });
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      loadModels(URL.createObjectURL(await response.blob()));
     } catch (error) {
       console.error('Error:', error);
+    } finally {
+      spinner.classList.remove('show');
+      overlay.classList.remove('show');
     }
-  });
+  };
 });

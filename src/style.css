@@ -29,3 +29,53 @@ canvas {
   font-weight: bold;
   color: #333;
 }
+
+/* スピニングホイールのスタイル */
+.spinner {
+  /* 中央寄せ */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  z-index: 2;
+  animation: spinner-spin 1s linear infinite;
+  width: 10rem; /*横幅*/
+  height: 10rem; /*縦幅*/
+  border-radius: 50%; /* 角丸・丸くする */
+
+  /* グルグルの背景の灰色の太さと色を変える */
+  border: 1rem solid rgba(255, 255, 255, 1);
+  /* ここは緑のグルグルの太さと色を変える */
+  border-top: 1rem solid #008cff;
+
+  /* 回転と位置調整をまとめる */
+  transform: translate(-50%, -50%) rotate(0deg);
+  transform-origin: center center;
+
+  transition: all .2s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+.spinner.show {
+  opacity: 1;
+}
+
+@keyframes spinner-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 処理中の背景 */
+.overlay {
+  transition: all .2s ease;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  left:0; top:0;
+  background: rgba(0,0,0,0);
+  z-index: 1;
+  pointer-events: none;
+}
+.overlay.show {
+  background: rgba(0,0,0,0.3);
+}
