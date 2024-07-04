@@ -79,17 +79,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初期化
     scene = new THREE.Scene();
 
+    // scene-container要素を取得
+    const sceneContainer = document.getElementById('scene-container');
+    if (!sceneContainer) return;
+
     // 既存のレンダラー要素を削除
     const existingCanvas = document.querySelector('canvas');
     existingCanvas && existingCanvas.remove();
 
     // 新しいレンダラー要素を追加
     renderer = new THREE.WebGLRenderer();
-    document.body.appendChild(renderer.domElement);
+    sceneContainer.appendChild(renderer.domElement);
 
-    const adjustedHeight = window.innerHeight - 451;
-    renderer.setSize(window.innerWidth, adjustedHeight);
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / adjustedHeight, 0.1, 1000);
+    // レンダラーのサイズをscene-containerに合わせる
+    const containerRect = sceneContainer.getBoundingClientRect();
+    renderer.setSize(containerRect.width, containerRect.height);
+    camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 0.1, 1000);
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.object.position.set(2, 0, 0);
