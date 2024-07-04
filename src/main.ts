@@ -19,14 +19,36 @@ const animate = (): void => {
   renderer.render(scene, camera);
 }
 
-const displayModel = (dataUrl: string): void => {
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load(dataUrl, gltf => {
-    const model = gltf.scene;
-    scene.add(model);
-    createBoundingBox(model);
-    animate();
-  });
+const gltfLoader = new GLTFLoader(); // GLTFLoaderをインスタンス化
+
+/**
+ * GLTFモデルをロードし、特定のサイズ条件に合わせてスケールを調整し、Promiseでモデルを返す関数
+ * @param url モデルのURL
+ * @return ロードされスケールされたモデルを含むPromise
+ */
+const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEventMap>> => new Promise(
+  resolve => {
+    gltfLoader.load(url, (gltf) => {
+      const model = gltf.scene;
+
+      // モデルのバウンディングボックスを計算
+      const size = new THREE.Vector3();
+      (new THREE.Box3().setFromObject(model)).getSize(size);
+
+      // 最大寸法を1に設定し、他の寸法を比率を保ちながらスケールする
+      const maxDimension = Math.max(size.x, size.y, size.z);
+      model.scale.set(2 / maxDimension, 2 / maxDimension, 2 / maxDimension);
+
+      resolve(model);  // モデルをresolveで返す
+    });
+  }
+);
+
+const displayModel = async (dataUrl: string): Promise<void> => {
+  const model = await loadAndScaleModel(dataUrl)
+  scene.add(model);
+  createBoundingBox(model);
+  animate();
 }
 
 const createBoundingBox = (model: THREE.Object3D): void => {
@@ -38,24 +60,16 @@ const createBoundingBox = (model: THREE.Object3D): void => {
   const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x5b4c47 });
 
   const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-  boxMesh.position.set(
-    (box.min.x + box.max.x) / 2 + 4,
-    (box.min.y + box.max.y) / 2,
-    (box.min.z + box.max.z) / 2
-  );
+  boxMesh.position.set((box.min.x + box.max.x) / 2 + 4, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
   scene.add(boxMesh);
 }
 
-const loadModels = (lodPath: string) => {
+const loadModels = async (lodPath: string) => {
   lodModel && scene.remove(lodModel);
-
-  const gltfLoader = new GLTFLoader();
-  gltfLoader.load(lodPath, (gltf) => {
-    lodModel = gltf.scene;
-    lodModel.position.x = 2; // Offset to distinguish between original and LOD
-    scene.add(lodModel);
-    animate();
-  });
+  lodModel = await loadAndScaleModel(lodPath);
+  lodModel.position.x = 2; // Offset to distinguish between original and LOD
+  scene.add(lodModel);
+  animate();
 }
 
 // DOM操作
@@ -87,7 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => e.target?.result && displayModel(e.target.result as string);
+    reader.onload = async (e: ProgressEvent<FileReader>) => e.target?.result && await displayModel(
+      e.target.result as string
+    );
+
     reader.readAsDataURL(file);
   };
 
