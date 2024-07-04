@@ -44,11 +44,47 @@ const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEvent
   }
 );
 
+function createStaticModelViewer(model: THREE.Group) {
+  const scene = new THREE.Scene();
+
+  const staticViewerContainer = document.getElementById('model-viewer') as HTMLDivElement;
+
+  const renderer = new THREE.WebGLRenderer();
+  staticViewerContainer.appendChild(renderer.domElement);
+  const containerRect = staticViewerContainer.getBoundingClientRect();
+  renderer.setSize(containerRect.width, containerRect.height);
+
+  const viewerCamera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 0.1, 1000);
+
+  // モデルのバウンディングボックスを計算
+  const boundingBox = new THREE.Box3().setFromObject(model);
+  const center = new THREE.Vector3();
+  boundingBox.getCenter(center);
+
+  // カメラの位置を設定
+  viewerCamera.position.z = 3;
+
+  // カメラをモデルの中心に向ける
+  viewerCamera.lookAt(center);
+
+  createLight(scene, 5, 10, 7.5);
+
+  scene.add(model);
+
+  renderer.render(scene, viewerCamera);
+
+  // レンダリングされた画像をBase64エンコードされた文字列として取得
+  const imageDataUrl = renderer.domElement.toDataURL('image/png');
+  console.log(imageDataUrl);
+}
+
 const displayModel = async (dataUrl: string): Promise<void> => {
   const model = await loadAndScaleModel(dataUrl)
   scene.add(model);
   createBoundingBox(model);
   animate();
+
+  createStaticModelViewer(model.clone());
 }
 
 const createBoundingBox = (model: THREE.Object3D): void => {
