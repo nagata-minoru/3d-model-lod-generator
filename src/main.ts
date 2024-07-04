@@ -67,10 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const target = event.target as HTMLInputElement;
     // 初期化
     scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+    // 既存のレンダラー要素を削除
+    const existingCanvas = document.querySelector('canvas');
+    existingCanvas && existingCanvas.remove();
+
+    // 新しいレンダラー要素を追加
     renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement); // TODO: 既存のdomElement削除
+    document.body.appendChild(renderer.domElement);
+
+    const adjustedHeight = window.innerHeight - 451;
+    renderer.setSize(window.innerWidth, adjustedHeight);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / adjustedHeight, 0.1, 1000);
+
     controls = new OrbitControls(camera, renderer.domElement);
     controls.object.position.set(2, 0, 0);
     controls.target.set(2, 0, 0);
@@ -78,7 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
     createLight(scene, -5, -10, -7.5);
     camera.position.z = 5;
 
-    console.log(target.files);
     const file = target.files?.[0];
     if (file) {
       const reader = new FileReader();
