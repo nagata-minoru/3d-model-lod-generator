@@ -44,7 +44,37 @@ const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEvent
   }
 );
 
-function createStaticModelViewer(model: THREE.Group) {
+const sendImageDataToServer = async (imageDataUrl: string) => {
+  try {
+    const response = await fetch('/api/save_image', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ imageDataUrl }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log(result.message);
+  } catch (error) {
+    console.error('Error sending image data:', error);
+  }
+};
+
+const downloadImageData = (imageDataUrl: string) => {
+  const link = document.createElement('a');
+  link.href = imageDataUrl;
+  link.download = 'model-image.png'; // ここでダウンロードするファイル名を設定
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const createStaticModelViewer = async (model: THREE.Group) => {
   const scene = new THREE.Scene();
 
   const staticViewerContainer = document.getElementById('model-viewer') as HTMLDivElement;
@@ -68,6 +98,7 @@ function createStaticModelViewer(model: THREE.Group) {
   viewerCamera.lookAt(center);
 
   createLight(scene, 5, 10, 7.5);
+  createLight(scene, -5, -10, -7.5);
 
   scene.add(model);
 
@@ -75,7 +106,7 @@ function createStaticModelViewer(model: THREE.Group) {
 
   // レンダリングされた画像をBase64エンコードされた文字列として取得
   const imageDataUrl = renderer.domElement.toDataURL('image/png');
-  console.log(imageDataUrl);
+  await sendImageDataToServer(imageDataUrl);
 }
 
 const displayModel = async (dataUrl: string): Promise<void> => {
