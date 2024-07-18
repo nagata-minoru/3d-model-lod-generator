@@ -1,3 +1,8 @@
+/**
+ * メインエントリーポイント。
+ * シーンのセットアップ、モデルの読み込み、バウンディングボックスの作成、およびサーバーとの通信を行います。
+ */
+
 import * as THREE from 'three';
 import { LIGHT_POSITION_1, LIGHT_POSITION_2, createLight, setupScene, animate, scene } from './sceneSetup';
 import { loadAndScaleModel } from './modelLoader';

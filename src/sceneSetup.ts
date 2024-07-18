@@ -1,3 +1,8 @@
+/**
+ * シーンのセットアップを担当するモジュール。
+ * シーン、カメラ、レンダラー、コントロールの初期化と光源の追加を行います。
+ */
+
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 

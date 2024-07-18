@@ -1,3 +1,8 @@
+/**
+ * モデルの読み込みとスケーリングを担当するモジュール。
+ * GLTF形式のモデルを読み込み、特定のサイズ条件に合わせてスケーリングします。
+ */
+
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
