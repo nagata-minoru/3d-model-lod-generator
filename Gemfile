@@ -4,6 +4,7 @@ gem 'sinatra'
 gem "sinatra-contrib"
 gem "rackup", "~> 2.1"
 gem "pry-byebug", "~> 3.10"
+gem "mini_magick"
 
 # 開発環境用のgem
 group :development do

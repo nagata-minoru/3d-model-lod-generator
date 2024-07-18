@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'sinatra/json'
 require 'open3'
+require 'mini_magick'
 require 'tempfile'
 require 'pry-byebug'
 
@@ -69,12 +70,33 @@ class LodApp < Sinatra::Base
       filepath = File.join(save_dir, filename)
 
       # ファイルに直接書き込み
-      File.open(filepath, 'wb') do |file|
-        file.write(decoded_image)
+      File.open(filepath, 'wb') { |file| file.write(decoded_image) }
+
+      # 画像を読み込み
+      image = MiniMagick::Image.open(filepath)
+
+      # ピクセルデータを取得して平均色を計算
+      pixels = image.get_pixels
+      total_pixels = 0
+      sum_r = sum_g = sum_b = 0
+
+      pixels.each do |row|
+        row.each do |pixel|
+          r, g, b = pixel[0], pixel[1], pixel[2]
+          next if r == 0 && g == 0 && b == 0
+
+          sum_r += r
+          sum_g += g
+          sum_b += b
+          total_pixels += 1
+        end
       end
 
-      # 成功レスポンス
-      json(message: "画像が正常に保存されました")
+      avg_r = sum_r / total_pixels
+      avg_g = sum_g / total_pixels
+      avg_b = sum_b / total_pixels
+
+      json(message: "画像が正常に保存されました", average_color: sprintf("#%02x%02x%02x", avg_r, avg_g, avg_b))
     rescue => e
       halt 500, json(message: "画像保存エラー: #{e.message}")
     ensure

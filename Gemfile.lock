@@ -9,6 +9,7 @@ GEM
     json (2.7.2)
     language_server-protocol (3.17.0.3)
     method_source (1.1.0)
+    mini_magick (5.0.0)
     multi_json (1.15.0)
     mustermann (3.0.0)
       ruby2_keywords (~> 0.0.1)
@@ -86,6 +87,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  mini_magick
   pry (~> 0.14.2)
   pry-byebug (~> 3.10)
   rackup (~> 2.1)

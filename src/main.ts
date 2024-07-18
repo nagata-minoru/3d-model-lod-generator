@@ -60,18 +60,10 @@ const sendImageDataToServer = async (imageDataUrl: string) => {
 
     const result = await response.json();
     console.log(result.message);
+    return result.average_color;
   } catch (error) {
     console.error('Error sending image data:', error);
   }
-};
-
-const downloadImageData = (imageDataUrl: string) => {
-  const link = document.createElement('a');
-  link.href = imageDataUrl;
-  link.download = 'model-image.png'; // ここでダウンロードするファイル名を設定
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 };
 
 const createStaticModelViewer = async (model: THREE.Group) => {
@@ -106,25 +98,25 @@ const createStaticModelViewer = async (model: THREE.Group) => {
 
   // レンダリングされた画像をBase64エンコードされた文字列として取得
   const imageDataUrl = renderer.domElement.toDataURL('image/png');
-  await sendImageDataToServer(imageDataUrl);
+  return await sendImageDataToServer(imageDataUrl);
 }
 
 const displayModel = async (dataUrl: string): Promise<void> => {
   const model = await loadAndScaleModel(dataUrl)
-  scene.add(model);
-  createBoundingBox(model);
   animate();
 
-  createStaticModelViewer(model.clone());
+  const averageColorString = await createStaticModelViewer(model.clone());
+  scene.add(model);
+  createBoundingBox(model, averageColorString);
 }
 
-const createBoundingBox = (model: THREE.Object3D): void => {
+const createBoundingBox = (model: THREE.Object3D, averageColorString: string): void => {
   const box = new THREE.Box3().setFromObject(model);
   const size = new THREE.Vector3();
   box.getSize(size);
 
   const boxGeometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-  const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x5b4c47 });
+  const boxMaterial = new THREE.MeshBasicMaterial({ color: averageColorString });
 
   const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
   boxMesh.position.set((box.min.x + box.max.x) / 2 + 4, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
