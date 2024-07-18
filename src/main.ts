@@ -7,12 +7,22 @@ const overlay = document.getElementById('overlay') as HTMLElement;
 let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, controls: OrbitControls;
 let lodModel: THREE.Object3D | null = null;
 
+/**
+ * シーンに光源を作成して追加します。
+ * @param {THREE.Scene} scene - 光源を追加するシーン。
+ * @param {number} x - 光源のx座標。
+ * @param {number} y - 光源のy座標。
+ * @param {number} z - 光源のz座標。
+ */
 const createLight = (scene: THREE.Scene, x: number, y: number, z: number): void => {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
   directionalLight.position.set(x, y, z);
   scene.add(directionalLight);
 }
 
+/**
+ * アニメーションを実行します。
+ */
 const animate = (): void => {
   requestAnimationFrame(animate);
   controls.update();
@@ -44,6 +54,11 @@ const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEvent
   }
 );
 
+/**
+ * 画像データをサーバーに送信します。
+ * @param {string} imageDataUrl - 送信する画像データのURL。
+ * @return {Promise<string>} - サーバーからの応答として返された平均色。
+ */
 const sendImageDataToServer = async (imageDataUrl: string) => {
   try {
     const response = await fetch('/api/save_image', {
@@ -66,6 +81,11 @@ const sendImageDataToServer = async (imageDataUrl: string) => {
   }
 };
 
+/**
+ * 静的なモデルビューアを作成し、モデルのレンダリング画像をサーバーに送信します。
+ * @param {THREE.Group} model - レンダリングするモデル。
+ * @return {Promise<string>} - サーバーからの応答として返された平均色。
+ */
 const createStaticModelViewer = async (model: THREE.Group) => {
   const scene = new THREE.Scene();
 
@@ -101,6 +121,10 @@ const createStaticModelViewer = async (model: THREE.Group) => {
   return await sendImageDataToServer(imageDataUrl);
 }
 
+/**
+ * モデルを表示し、ボックスを作成します。
+ * @param {string} dataUrl - モデルのデータURL。
+ */
 const displayModel = async (dataUrl: string): Promise<void> => {
   const model = await loadAndScaleModel(dataUrl)
   animate();
@@ -110,6 +134,11 @@ const displayModel = async (dataUrl: string): Promise<void> => {
   createBoundingBox(model, averageColorString);
 }
 
+/**
+ * モデルの周りにバウンディングボックスを作成します。
+ * @param {THREE.Object3D} model - ボックスを作成する対象のモデル。
+ * @param {string} averageColorString - ボックスの色を指定するための平均色。
+ */
 const createBoundingBox = (model: THREE.Object3D, averageColorString: string): void => {
   const box = new THREE.Box3().setFromObject(model);
   const size = new THREE.Vector3();
@@ -123,6 +152,10 @@ const createBoundingBox = (model: THREE.Object3D, averageColorString: string): v
   scene.add(boxMesh);
 }
 
+/**
+ * モデルをロードし、シーンに追加します。
+ * @param {string} lodPath - モデルのパス。
+ */
 const loadModels = async (lodPath: string) => {
   lodModel && scene.remove(lodModel);
   lodModel = await loadAndScaleModel(lodPath);
@@ -172,6 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.readAsDataURL(file);
   };
 
+  /**
+   * フォーム送信イベントハンドラ。
+   * @param {Event} event - フォーム送信イベント。
+   */
   (document.getElementById('uploadForm') as HTMLFormElement).onsubmit = async function (event: Event) {
     spinner.classList.add('show');
     overlay.classList.add('show');

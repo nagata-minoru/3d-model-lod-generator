@@ -5,13 +5,31 @@ require 'mini_magick'
 require 'tempfile'
 require 'pry-byebug'
 
+##
+# LodAppは、SinatraベースのWebアプリケーションです。このアプリケーションは、GLTFモデルの
+# LOD (Level of Detail) を生成し、画像を保存し、平均色を計算するAPIを提供します。
+#
 class LodApp < Sinatra::Base
   set :public_folder, File.expand_path('../dist', __FILE__)
 
+  ##
+  # ルートURLにアクセスした際に、index.htmlファイルを返します。
+  #
   get '/' do
     send_file File.join(settings.public_folder, 'index.html')
   end
 
+  ##
+  # POST /api/create_lod
+  # パラメータからGLTFファイルを受け取り、指定された比率と誤差で
+  # LODを生成します。
+  #
+  # @param [File] file GLTFファイル
+  # @param [Float] ratio LODの比率
+  # @param [Float] error 許容誤差
+  #
+  # @return [File] 生成されたLODファイル
+  #
   post '/api/create_lod' do
     content_type :json
 
@@ -51,6 +69,15 @@ class LodApp < Sinatra::Base
     end
   end
 
+  ##
+  # POST /api/save_image
+  # Base64エンコードされた画像データを受け取り、サーバーに保存します。
+  # また、保存した画像の平均色を計算して返します。
+  #
+  # @param [String] imageDataUrl Base64エンコードされた画像データURL
+  #
+  # @return [Hash] 保存成功メッセージと画像の平均色
+  #
   post '/api/save_image' do
     content_type :json
 
