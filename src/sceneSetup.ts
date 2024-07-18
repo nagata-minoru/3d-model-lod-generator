@@ -16,7 +16,7 @@ export const LIGHT_POSITION_2 = { x: -5, y: -10, z: -7.5 };
  * @param {THREE.Scene} scene - 光源を追加するシーン。
  * @param {{ x: number, y: number, z: number }} position - 光源の位置を表すオブジェクト。
  */
-export const createLight = (scene: THREE.Scene, position: { x: number, y: number, z: number }): void => {
+const createLight = (scene: THREE.Scene, position: { x: number, y: number, z: number }): void => {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
   directionalLight.position.set(position.x, position.y, position.z);
   scene.add(directionalLight);
@@ -38,8 +38,7 @@ export const setupScene = (container: HTMLElement) => {
   controls.object.position.set(2, 0, 0);
   controls.target.set(2, 0, 0);
 
-  createLight(scene, LIGHT_POSITION_1);
-  createLight(scene, LIGHT_POSITION_2);
+  setupSceneLighting(scene);
 
   camera.position.z = 5;
 };
@@ -52,3 +51,11 @@ export const animate = (): void => {
   controls.update();
   renderer.render(scene, camera);
 };
+
+/**
+ * シーンに光源を追加します。
+ */
+export const setupSceneLighting = (scene: THREE.Scene) => {
+  createLight(scene, LIGHT_POSITION_1);
+  createLight(scene, LIGHT_POSITION_2);
+}

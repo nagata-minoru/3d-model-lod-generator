@@ -4,7 +4,7 @@
  */
 
 import * as THREE from 'three';
-import { LIGHT_POSITION_1, LIGHT_POSITION_2, createLight, setupScene, animate, scene } from './sceneSetup';
+import { setupSceneLighting, setupScene, animate, scene } from './sceneSetup';
 import { loadAndScaleModel } from './modelLoader';
 import { createBoundingBox, sendImageDataToServer } from './utils';
 
@@ -40,8 +40,7 @@ const createStaticModelViewer = async (model: THREE.Group): Promise<string | und
   // カメラをモデルの中心に向ける
   viewerCamera.lookAt(center);
 
-  createLight(scene, LIGHT_POSITION_1);
-  createLight(scene, LIGHT_POSITION_2);
+  setupSceneLighting(scene);
 
   scene.add(model);
 
