@@ -57,7 +57,7 @@ const displayModel = async (dataUrl: string): Promise<void> => {
 
   const averageColorString = await createStaticModelViewer(model.clone());
   scene.add(model);
-  averageColorString && createBoundingBox(scene, model, averageColorString); // TODO: リファクタリング
+  averageColorString && scene.add(createBoundingBox(model, averageColorString));
 }
 
 /**
