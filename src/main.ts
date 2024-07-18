@@ -7,16 +7,17 @@ const overlay = document.getElementById('overlay') as HTMLElement;
 let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, controls: OrbitControls;
 let lodModel: THREE.Object3D | null = null;
 
+const LIGHT_POSITION_1 = { x: 5, y: 10, z: 7.5 };
+const LIGHT_POSITION_2 = { x: -5, y: -10, z: -7.5 };
+
 /**
  * シーンに光源を作成して追加します。
  * @param {THREE.Scene} scene - 光源を追加するシーン。
- * @param {number} x - 光源のx座標。
- * @param {number} y - 光源のy座標。
- * @param {number} z - 光源のz座標。
+ * @param {{ x: number, y: number, z: number }} position - 光源の位置を表すオブジェクト。
  */
-const createLight = (scene: THREE.Scene, x: number, y: number, z: number): void => {
+const createLight = (scene: THREE.Scene, position: { x: number, y: number, z: number }): void => {
   const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(x, y, z);
+  directionalLight.position.set(position.x, position.y, position.z);
   scene.add(directionalLight);
 }
 
@@ -34,7 +35,7 @@ const gltfLoader = new GLTFLoader(); // GLTFLoaderをインスタンス化
 /**
  * GLTFモデルをロードし、特定のサイズ条件に合わせてスケールを調整し、Promiseでモデルを返す関数
  * @param url モデルのURL
- * @return ロードされスケールされたモデルを含むPromise
+ * @return {Promise<THREE.Group<THREE.Object3DEventMap>>} ロードされスケールされたモデルを含むPromise。
  */
 const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEventMap>> => new Promise(
   resolve => {
@@ -59,7 +60,7 @@ const loadAndScaleModel = (url: string): Promise<THREE.Group<THREE.Object3DEvent
  * @param {string} imageDataUrl - 送信する画像データのURL。
  * @return {Promise<string>} - サーバーからの応答として返された平均色。
  */
-const sendImageDataToServer = async (imageDataUrl: string) => {
+const sendImageDataToServer = async (imageDataUrl: string): Promise<string | undefined> => {
   try {
     const response = await fetch('/api/save_image', {
       method: 'POST',
@@ -109,8 +110,8 @@ const createStaticModelViewer = async (model: THREE.Group) => {
   // カメラをモデルの中心に向ける
   viewerCamera.lookAt(center);
 
-  createLight(scene, 5, 10, 7.5);
-  createLight(scene, -5, -10, -7.5);
+  createLight(scene, LIGHT_POSITION_1);
+  createLight(scene, LIGHT_POSITION_2);
 
   scene.add(model);
 
@@ -131,7 +132,7 @@ const displayModel = async (dataUrl: string): Promise<void> => {
 
   const averageColorString = await createStaticModelViewer(model.clone());
   scene.add(model);
-  createBoundingBox(model, averageColorString);
+  averageColorString && createBoundingBox(model, averageColorString);
 }
 
 /**
@@ -191,8 +192,8 @@ document.addEventListener('DOMContentLoaded', () => {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.object.position.set(2, 0, 0);
     controls.target.set(2, 0, 0);
-    createLight(scene, 5, 10, 7.5);
-    createLight(scene, -5, -10, -7.5);
+    createLight(scene, LIGHT_POSITION_1);
+    createLight(scene, LIGHT_POSITION_2);
     camera.position.z = 5;
 
     const file = (event.target as HTMLInputElement).files?.[0];
