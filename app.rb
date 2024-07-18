@@ -10,6 +10,7 @@ require 'pry-byebug'
 # LOD (Level of Detail) を生成し、画像を保存し、平均色を計算するAPIを提供します。
 #
 class LodApp < Sinatra::Base
+  set :port, ENV['PORT'] || 4567
   set :public_folder, File.expand_path('../dist', __FILE__)
 
   ##
