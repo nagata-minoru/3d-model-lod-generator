@@ -1,27 +1,53 @@
-# 3d-model-lod-generator
+# GLB Viewer with LOD
 
-3Dモデル(GLBファイル)を読み込み、頂点数を減らします。
+このプロジェクトは、Three.js を使用して GLB ファイルを読み込み、表示し、Level of Detail (LOD) を生成するウェブアプリケーションです。
 
-モデルを読み込んだとき、そのモデルを象徴する色を決定します。
+## 機能
 
-## Requirements
-- ruby 3.x
-- npm 10.x
+- GLB ファイルの読み込みと表示
+- gltf-transform を使用した LOD の生成
+- 元のモデルと LOD モデルの同時表示
+- バウンディングボックスの表示
+- モデルを読み込んだとき、そのモデルを象徴する色を決定します。
 
-## TODO
+## 前提条件
+- ruby 3.x 以上
+- Node.js 12.0.0 以上
 
-### SETUP
-```shell
-npm install
-bundle install
-```
+## インストール
 
-### for deverop typescript
-```
-npm run dev
-```
+1. リポジトリをクローンします:
+  ```
+  git clone https://github.com/nagata-minoru/3d-model-lod-generator.git
+  cd 3d-model-lod-generator
+  ```
 
-### for develop sinatra
-```
-ruby app.rb
-```
+2. 依存関係をインストールします:
+  ```
+  npm install
+  bundle install
+  ```
+
+## 使用方法
+
+- TypeScript開発用:
+  ```
+  npm run dev
+  ```
+
+o+Enterでブラウザが開きます。
+
+- Sinatra開発用:
+  ```
+  ruby app.rb
+  ```
+
+localhost:4567にアクセスしてください。
+
+## 貢献
+
+プルリクエストは歓迎します。大きな変更を加える場合は、まず issue を開いて議論してください。
+
+## ライセンス
+
+[MIT](https://choosealicense.com/licenses/mit/)
