@@ -109,7 +109,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       const response = await fetch('/api/create_lod', { method: 'POST', body: formData });
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+      }
       loadModels(URL.createObjectURL(await response.blob()));
     } catch (error) {
       console.error('Error:', error);
