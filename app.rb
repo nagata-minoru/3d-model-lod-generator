@@ -48,25 +48,41 @@ class LodApp < Sinatra::Base
       input_tempfile.write(input_file.read)
       input_tempfile.rewind
 
-      # 出力ファイルも一時ファイルとして準備
+      # 中間ファイルと出力ファイルも一時ファイルとして準備
+      intermediate_tempfile = Tempfile.new(['intermediate_', File.extname(input_file_name)])
       output_tempfile = Tempfile.new(['output_', File.extname(input_file_name)])
 
       ratio = params[:ratio].to_f
       error = params[:error].to_f
 
-      command = "npx gltf-transform simplify #{input_tempfile.path} #{output_tempfile.path} --ratio #{ratio} --error #{error}"
-      stdout, stderr, status = Open3.capture3(command)
+      # glb-texture-converterを実行
+      scale_ratio = 0.05
+      converter_command = "npx glb-texture-converter #{input_tempfile.path} #{intermediate_tempfile.path} #{scale_ratio}"
+      converter_stdout, converter_stderr, converter_status = Open3.capture3(converter_command)
 
-      if status.success?
+      unless converter_status.success?
+        halt 500, json(message: "glb-texture-converterの実行エラー: #{converter_stderr}")
+      end
+
+      # gltf-transformを実行
+      transform_command = "npx gltf-transform simplify #{intermediate_tempfile.path} #{output_tempfile.path} --ratio #{ratio} --error #{error}"
+      transform_stdout, transform_stderr, transform_status = Open3.capture3(transform_command)
+
+      if transform_status.success?
         content_type 'application/octet-stream'
-        send_file output_tempfile.path, filename: "output_#{input_file_name}", type: 'application/octet-stream'
+        # 一時ファイルをクローズして再度開く
+        output_tempfile.close
+        # send_file output_tempfile.path, filename: "output_#{input_file_name}", type: 'model/gltf-binary', disposition: 'attachment'
+        send_file output_tempfile.path
       else
-        halt 500, json(message: "LODの作成エラー: #{stderr}")
+        halt 500, json(message: "LODの作成エラー: #{transform_stderr}")
       end
     rescue => e
       halt 500, json(message: "サーバーエラー: #{e.message}")
     ensure
       input_tempfile.close!
+      intermediate_tempfile.close!
+      # output_tempfile.close!
     end
   end
 

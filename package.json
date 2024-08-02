@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@gltf-transform/cli": "^4.0.8",
+    "glb-texture-converter": "github:nagata-minoru/glb-texture-converter",
     "three": "^0.166.1"
   }
 }
