@@ -40,7 +40,8 @@ export const setupScene = (container: HTMLElement) => {
 
   setupSceneLighting(scene);
 
-  camera.position.z = 5;
+  camera.position.y = 0.5;
+  camera.position.z = 2.5;
 };
 
 /**

@@ -35,7 +35,7 @@ class LodApp < Sinatra::Base
     content_type :json
 
     # パラメータの確認
-    unless params[:file] && params[:ratio] && params[:error]
+    unless params[:file] && params[:ratio] && params[:error] && params[:compressionRate]
       halt 400, json(message: "パラメータが不足しています")
     end
 
@@ -54,10 +54,12 @@ class LodApp < Sinatra::Base
 
       ratio = params[:ratio].to_f
       error = params[:error].to_f
+      compression_rate = params[:compressionRate].to_f
 
       # glb-texture-converterを実行
-      scale_ratio = 0.05
-      converter_command = "npx glb-texture-converter #{input_tempfile.path} #{intermediate_tempfile.path} #{scale_ratio}"
+      converter_command =
+        "npx glb-texture-converter #{input_tempfile.path} #{intermediate_tempfile.path} #{compression_rate}"
+
       converter_stdout, converter_stderr, converter_status = Open3.capture3(converter_command)
 
       unless converter_status.success?
@@ -65,14 +67,19 @@ class LodApp < Sinatra::Base
       end
 
       # gltf-transformを実行
-      transform_command = "npx gltf-transform simplify #{intermediate_tempfile.path} #{output_tempfile.path} --ratio #{ratio} --error #{error}"
+      transform_command =
+        "npx gltf-transform simplify" \
+        " #{intermediate_tempfile.path}" \
+        " #{output_tempfile.path} " \
+        " --ratio #{ratio}" \
+        " --error #{error}"
+
       transform_stdout, transform_stderr, transform_status = Open3.capture3(transform_command)
 
       if transform_status.success?
         content_type 'application/octet-stream'
         # 一時ファイルをクローズして再度開く
         output_tempfile.close
-        # send_file output_tempfile.path, filename: "output_#{input_file_name}", type: 'model/gltf-binary', disposition: 'attachment'
         send_file output_tempfile.path
       else
         halt 500, json(message: "LODの作成エラー: #{transform_stderr}")
