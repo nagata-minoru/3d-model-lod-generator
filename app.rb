@@ -28,6 +28,7 @@ class LodApp < Sinatra::Base
   # @param [File] file GLTFファイル
   # @param [Float] ratio LODの比率
   # @param [Float] error 許容誤差
+  # @param [Float] compressionRate テクスチャ圧縮率
   #
   # @return [File] 生成されたLODファイル
   #
@@ -40,17 +41,11 @@ class LodApp < Sinatra::Base
     end
 
     begin
-      # 入力ファイルを一時ファイルとして保存
-      input_file = params[:file][:tempfile]
-      input_file_name = params[:file][:filename]
-      input_tempfile = Tempfile.new([File.basename(input_file_name, '.*'), File.extname(input_file_name)])
-      input_tempfile.binmode
-      input_tempfile.write(input_file.read)
-      input_tempfile.rewind
+      extname = File.extname(params[:file][:filename]) # 拡張子
 
-      # 中間ファイルと出力ファイルも一時ファイルとして準備
-      intermediate_tempfile = Tempfile.new(['intermediate_', File.extname(input_file_name)])
-      output_tempfile = Tempfile.new(['output_', File.extname(input_file_name)])
+      # 中間ファイルと出力ファイルを一時ファイルとして準備
+      intermediate_tempfile = Tempfile.new(['intermediate_', extname])
+      output_tempfile = Tempfile.new(['output_', extname])
 
       ratio = params[:ratio].to_f
       error = params[:error].to_f
@@ -58,7 +53,7 @@ class LodApp < Sinatra::Base
 
       # glb-texture-converterを実行
       converter_command =
-        "npx glb-texture-converter #{input_tempfile.path} #{intermediate_tempfile.path} #{compression_rate}"
+        "npx glb-texture-converter #{params[:file][:tempfile].path} #{intermediate_tempfile.path} #{compression_rate}"
 
       converter_stdout, converter_stderr, converter_status = Open3.capture3(converter_command)
 
@@ -70,7 +65,7 @@ class LodApp < Sinatra::Base
       transform_command =
         "npx gltf-transform simplify" \
         " #{intermediate_tempfile.path}" \
-        " #{output_tempfile.path} " \
+        " #{output_tempfile.path}" \
         " --ratio #{ratio}" \
         " --error #{error}"
 
@@ -87,9 +82,7 @@ class LodApp < Sinatra::Base
     rescue => e
       halt 500, json(message: "サーバーエラー: #{e.message}")
     ensure
-      input_tempfile.close!
       intermediate_tempfile.close!
-      # output_tempfile.close!
     end
   end
 
