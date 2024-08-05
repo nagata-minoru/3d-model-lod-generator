@@ -8,7 +8,7 @@ import * as THREE from 'three';
 /**
  * BoxMeshは、THREE.jsのボックスジオメトリとメッシュマテリアル、およびイベントマップを使用したメッシュを表す型です。
  */
-type BoxMesh = THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
+export type BoxMesh = THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial, THREE.Object3DEventMap>;
 
 /**
  * モデルのバウンディングボックスを作成して返します。
@@ -16,7 +16,7 @@ type BoxMesh = THREE.Mesh<THREE.BoxGeometry, THREE.MeshBasicMaterial, THREE.Obje
  * @param {string} averageColorString - ボックスの色を指定するための平均色。
  * @return {BoxMesh} - 作成されたバウンディングボックスのメッシュ。
  */
-export const createBoundingBox = (model: THREE.Object3D, averageColorString: string): BoxMesh => {
+export const createBoundingBox = (model: THREE.Object3D, averageColorString: string) => {
   const box = new THREE.Box3().setFromObject(model);
   const size = new THREE.Vector3();
   box.getSize(size);
@@ -25,8 +25,7 @@ export const createBoundingBox = (model: THREE.Object3D, averageColorString: str
   const boxMaterial = new THREE.MeshBasicMaterial({ color: averageColorString });
 
   const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-  boxMesh.position.set((box.min.x + box.max.x) / 2 + 4, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
-  return boxMesh;
+  return [boxMesh, box];
 }
 
 /**

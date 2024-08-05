@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { SceneSetup } from './sceneSetup';
+import { BoxMesh } from './utils';
 
-type Model = THREE.Object3D<THREE.Object3DEventMap>;
+export type Model = THREE.Object3D<THREE.Object3DEventMap>;
 
-export const showLodContainer = (model: Model, lodModel: Model) => {
+export const showLodContainer = (model: Model, lodModel: Model, box: BoxMesh) => {
   const sceneContainer = document.getElementById('lod-container');
   if (!sceneContainer) return;
 
@@ -12,6 +13,7 @@ export const showLodContainer = (model: Model, lodModel: Model) => {
   const lod = new THREE.LOD();
   lod.addLevel(model, 0);
   lod.addLevel(lodModel, 5);
+  lod.addLevel(box, 10);
   sceneSetup.scene.add(lod);
   sceneSetup.animate();
 }

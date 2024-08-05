@@ -6,8 +6,9 @@
 import * as THREE from 'three';
 import { SceneSetup } from './sceneSetup';
 import { loadAndScaleModel } from './modelLoader';
-import { createBoundingBox, sendImageDataToServer } from './utils';
+import { createBoundingBox, sendImageDataToServer, BoxMesh } from './utils';
 import { showLodContainer } from './lodContainer';
+import { Model } from './lodContainer';
 
 const spinner = document.getElementById('spinner') as HTMLElement;
 const overlay = document.getElementById('overlay') as HTMLElement;
@@ -37,21 +38,25 @@ const createStaticModelViewer = async (sceneSetup: SceneSetup, model: THREE.Grou
  * モデルを表示し、ボックスを作成します。
  * @param {string} dataUrl - モデルのデータURL。
  */
-const displayModel = async (sceneSetup: SceneSetup, dataUrl: string): Promise<THREE.Group<THREE.Object3DEventMap>> => {
+const displayModel = async (sceneSetup: SceneSetup, dataUrl: string): Promise<[Model, BoxMesh]> => {
   const model = await loadAndScaleModel(dataUrl)
   sceneSetup.animate();
 
-  const averageColorString = await createStaticModelViewer(sceneSetup, model.clone());
+  const averageColorString = (await createStaticModelViewer(sceneSetup, model.clone()))!;
   sceneSetup.scene.add(model);
-  averageColorString && sceneSetup.scene.add(createBoundingBox(model, averageColorString));
-  return model;
+  const [boxMesh, boxReceive] = createBoundingBox(model, averageColorString)
+  const box = boxReceive as THREE.Box3;
+  const boxMeshToShow = boxMesh.clone() as BoxMesh;
+  boxMeshToShow.position.set((box.min.x + box.max.x) / 2 + 4, (box.min.y + box.max.y) / 2, (box.min.z + box.max.z) / 2);
+  averageColorString && sceneSetup.scene.add(boxMeshToShow);
+  return [model, boxMesh as BoxMesh];
 }
 
 /**
  * モデルをロードし、シーンに追加します。
  * @param {string} lodPath - モデルのパス。
  */
-const loadModels = async (sceneSetup: SceneSetup, lodPath: string): Promise<THREE.Object3D<THREE.Object3DEventMap>> => {
+const loadModels = async (sceneSetup: SceneSetup, lodPath: string): Promise<Model> => {
   lodModel && sceneSetup.scene.remove(lodModel);
   lodModel = await loadAndScaleModel(lodPath);
   const modelToShow = lodModel.clone();
@@ -63,7 +68,8 @@ const loadModels = async (sceneSetup: SceneSetup, lodPath: string): Promise<THRE
 // DOM操作
 document.addEventListener('DOMContentLoaded', () => {
   let sceneSetup: SceneSetup | null = null;
-  let model: THREE.Group<THREE.Object3DEventMap> | null = null;
+  let model: Model | null = null;
+  let box: BoxMesh | null = null;
   const fileInput = document.querySelector('input[name="file"]') as HTMLInputElement;
   fileInput.oninput = (event: Event) => {
     // scene-container要素を取得
@@ -76,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async (e: ProgressEvent<FileReader>) => {
-      if (e.target?.result) model = await displayModel(sceneSetup!, e.target.result as string);
+      if (e.target?.result) [model, box] = await displayModel(sceneSetup!, e.target.result as string);
     };
 
     reader.readAsDataURL(file);
@@ -101,7 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const lodModel = await loadModels(sceneSetup!, URL.createObjectURL(await response.blob()));
 
-      showLodContainer(model!, lodModel);
+      box?.position.set(0, 0.5, 0);
+      showLodContainer(model!, lodModel, box!);
     } catch (error) {
       console.error('Error:', error);
     } finally {
