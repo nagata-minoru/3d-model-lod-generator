@@ -15,7 +15,7 @@ export class SceneSetup {
   public renderer: THREE.WebGLRenderer;
   public controls: OrbitControls;
 
-  constructor(container: HTMLElement) {
+  constructor(container: HTMLElement, targetX: number = 2, cameraZ = 2.5, lightIntensity: number = 1.5) {
     this.scene = new THREE.Scene();
     const containerRect = container.getBoundingClientRect();
 
@@ -26,12 +26,12 @@ export class SceneSetup {
     this.camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 0.1, 1000);
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.object.position.set(2, 0, 0);
-    this.controls.target.set(2, 0, 0);
+    this.controls.target.set(targetX, 0, 0);
 
-    this.setupSceneLighting();
+    this.setupSceneLighting(lightIntensity);
 
     this.camera.position.y = 0.5;
-    this.camera.position.z = 2.5;
+    this.camera.position.z = cameraZ;
   }
 
   /**
@@ -39,8 +39,8 @@ export class SceneSetup {
    * @param {THREE.Scene} scene - 光源を追加するシーン。
    * @param {{ x: number, y: number, z: number }} position - 光源の位置を表すオブジェクト。
    */
-  private createLight(scene: THREE.Scene, position: { x: number, y: number, z: number }): void {
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  private createLight(scene: THREE.Scene, position: { x: number, y: number, z: number }, lightIntensity: number): void {
+    const directionalLight = new THREE.DirectionalLight(0xffffff, lightIntensity);
     directionalLight.position.set(position.x, position.y, position.z);
     scene.add(directionalLight);
   }
@@ -48,9 +48,9 @@ export class SceneSetup {
   /**
    * シーンに光源を追加します。
    */
-  setupSceneLighting() {
-    this.createLight(this.scene, LIGHT_POSITION_1);
-    this.createLight(this.scene, LIGHT_POSITION_2);
+  setupSceneLighting(lightIntensity: number = 1.5) {
+    this.createLight(this.scene, LIGHT_POSITION_1, lightIntensity);
+    this.createLight(this.scene, LIGHT_POSITION_2, lightIntensity);
   }
 
   /**
