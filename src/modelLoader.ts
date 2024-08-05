@@ -5,8 +5,12 @@
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
 
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/libs/draco/');
 const gltfLoader = new GLTFLoader(); // GLTFLoaderをインスタンス化
+gltfLoader.setDRACOLoader(dracoLoader);
 
 /**
  * GLTFモデルをロードし、特定のサイズ条件に合わせてスケールを調整し、Promiseでモデルを返す関数
