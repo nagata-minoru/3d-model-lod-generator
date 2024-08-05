@@ -21,6 +21,7 @@ const createStaticModelViewer = async (model: THREE.Group): Promise<string | und
   const scene = new THREE.Scene();
 
   const staticViewerContainer = document.getElementById('model-viewer') as HTMLDivElement;
+  staticViewerContainer.hidden = false;
 
   const renderer = new THREE.WebGLRenderer();
   staticViewerContainer.appendChild(renderer.domElement);
@@ -48,6 +49,7 @@ const createStaticModelViewer = async (model: THREE.Group): Promise<string | und
 
   // レンダリングされた画像をBase64エンコードされた文字列として取得
   const imageDataUrl = renderer.domElement.toDataURL('image/png');
+  staticViewerContainer.hidden = true;
   return await sendImageDataToServer(imageDataUrl);
 }
 
