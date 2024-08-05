@@ -6,57 +6,59 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-export let scene: THREE.Scene, camera: THREE.PerspectiveCamera, renderer: THREE.WebGLRenderer, controls: OrbitControls;
+const LIGHT_POSITION_1 = { x: 5, y: 10, z: 7.5 };
+const LIGHT_POSITION_2 = { x: -5, y: -10, z: -7.5 };
 
-export const LIGHT_POSITION_1 = { x: 5, y: 10, z: 7.5 };
-export const LIGHT_POSITION_2 = { x: -5, y: -10, z: -7.5 };
+export class SceneSetup {
+  public scene: THREE.Scene;
+  public camera: THREE.PerspectiveCamera;
+  public renderer: THREE.WebGLRenderer;
+  public controls: OrbitControls;
 
-/**
- * シーンに光源を作成して追加します。
- * @param {THREE.Scene} scene - 光源を追加するシーン。
- * @param {{ x: number, y: number, z: number }} position - 光源の位置を表すオブジェクト。
- */
-const createLight = (scene: THREE.Scene, position: { x: number, y: number, z: number }): void => {
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 3);
-  directionalLight.position.set(position.x, position.y, position.z);
-  scene.add(directionalLight);
-}
+  constructor(container: HTMLElement) {
+    this.scene = new THREE.Scene();
+    const containerRect = container.getBoundingClientRect();
 
-/**
- * シーン、カメラ、レンダラー、コントロールのセットアップを行います。
- */
-export const setupScene = (container: HTMLElement) => {
-  scene = new THREE.Scene();
-  const containerRect = container.getBoundingClientRect();
+    this.renderer = new THREE.WebGLRenderer();
+    container.appendChild(this.renderer.domElement);
+    this.renderer.setSize(containerRect.width, containerRect.height);
 
-  renderer = new THREE.WebGLRenderer();
-  container.appendChild(renderer.domElement);
-  renderer.setSize(containerRect.width, containerRect.height);
+    this.camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 0.1, 1000);
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.object.position.set(2, 0, 0);
+    this.controls.target.set(2, 0, 0);
 
-  camera = new THREE.PerspectiveCamera(75, containerRect.width / containerRect.height, 0.1, 1000);
-  controls = new OrbitControls(camera, renderer.domElement);
-  controls.object.position.set(2, 0, 0);
-  controls.target.set(2, 0, 0);
+    this.setupSceneLighting();
 
-  setupSceneLighting(scene);
+    this.camera.position.y = 0.5;
+    this.camera.position.z = 2.5;
+  }
 
-  camera.position.y = 0.5;
-  camera.position.z = 2.5;
-};
+  /**
+   * シーンに光源を作成して追加します。
+   * @param {THREE.Scene} scene - 光源を追加するシーン。
+   * @param {{ x: number, y: number, z: number }} position - 光源の位置を表すオブジェクト。
+   */
+  private createLight(scene: THREE.Scene, position: { x: number, y: number, z: number }): void {
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+    directionalLight.position.set(position.x, position.y, position.z);
+    scene.add(directionalLight);
+  }
 
-/**
- * アニメーションを実行します。
- */
-export const animate = (): void => {
-  requestAnimationFrame(animate);
-  controls.update();
-  renderer.render(scene, camera);
-};
+  /**
+   * シーンに光源を追加します。
+   */
+  setupSceneLighting() {
+    this.createLight(this.scene, LIGHT_POSITION_1);
+    this.createLight(this.scene, LIGHT_POSITION_2);
+  }
 
-/**
- * シーンに光源を追加します。
- */
-export const setupSceneLighting = (scene: THREE.Scene) => {
-  createLight(scene, LIGHT_POSITION_1);
-  createLight(scene, LIGHT_POSITION_2);
+  /**
+   * アニメーションを実行します。
+   */
+  public animate = (): void => {
+    requestAnimationFrame(this.animate);
+    this.controls.update();
+    this.renderer.render(this.scene, this.camera);
+  }
 }
