@@ -18,7 +18,9 @@ export default defineConfig({
       targets: [
         {
           src: 'node_modules/three/examples/jsm/libs/draco/**/*',
-          dest: 'libs/draco'
+          dest: 'libs/draco',
+          // v3 以降は src のディレクトリ構成ごとコピーするので、先頭の node_modules/three/examples/jsm/libs/draco/ を取り除く
+          rename: { stripBase: 6 },
         }
       ]
     })
