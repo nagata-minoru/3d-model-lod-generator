@@ -44,6 +44,20 @@ o+Enterでブラウザが開きます。
 
 localhost:4567にアクセスしてください。
 
+## テスト
+
+- API（RSpec）:
+  ```
+  bundle exec rspec
+  ```
+
+  `POST /api/create_lod` のテストは実際に glb-texture-converter と gltf-transform を動かすので、先に `npm install` が必要です。
+
+- フロントエンド（Vitest）:
+  ```
+  npm test
+  ```
+
 ## 貢献
 
 プルリクエストは歓迎します。大きな変更を加える場合は、まず issue を開いて議論してください。

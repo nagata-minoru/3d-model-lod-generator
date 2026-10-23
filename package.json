@@ -8,14 +8,16 @@
     "dev:ruby": "ruby app.rb",
     "dev": "concurrently 'npm run dev:vite' 'npm run dev:ruby'",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "devDependencies": {
     "@types/three": "^0.186.0",
     "concurrently": "^10.0.6",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
-    "vite-plugin-static-copy": "^4.1.1"
+    "vite-plugin-static-copy": "^4.1.1",
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@gltf-transform/cli": "^4.5.1",

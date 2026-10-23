@@ -16,4 +16,5 @@ end
 # テスト用のgem
 group :test do
   gem 'rspec', '~> 3.13'  # テストフレームワーク
+  gem 'rack-test', '~> 2.2'  # Sinatra のアプリにリクエストを送る
 end

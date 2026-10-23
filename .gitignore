@@ -24,3 +24,4 @@ dist-ssr
 *.sw?
 
 *.glb
+!spec/fixtures/*.glb
