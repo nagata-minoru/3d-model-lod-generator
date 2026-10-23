@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       # 画像の平均色の計算に mini_magick（ImageMagick）を使う
-      - run: sudo apt-get update && sudo apt-get install -y imagemagick
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends imagemagick
       # LOD の作成で npx glb-texture-converter / gltf-transform を動かす
       - uses: actions/setup-node@v7
         with:
