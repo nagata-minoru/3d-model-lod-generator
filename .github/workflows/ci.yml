@@ -1,0 +1,52 @@
+# PR と main への push ごとにテストとビルドを実行する
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# 同じブランチに続けて push したら、古い実行は取り消す
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test -- --run
+      - run: npm run build
+
+  api:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # README の前提条件（Ruby 3.2 以上、Ruby 4 でも動く）に合わせる
+        ruby: ['3.2', '4.0']
+    steps:
+      - uses: actions/checkout@v7
+      # 画像の平均色の計算に mini_magick（ImageMagick）を使う
+      - run: sudo apt-get update && sudo apt-get install -y imagemagick
+      # LOD の作成で npx glb-texture-converter / gltf-transform を動かす
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - run: bundle exec rspec
