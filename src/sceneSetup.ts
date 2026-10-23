@@ -4,7 +4,7 @@
  */
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 const LIGHT_POSITION_1 = { x: 5, y: 10, z: 7.5 };
 const LIGHT_POSITION_2 = { x: -5, y: -10, z: -7.5 };
