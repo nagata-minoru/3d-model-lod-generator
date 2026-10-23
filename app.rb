@@ -52,24 +52,28 @@ class LodApp < Sinatra::Base
       compression_rate = params[:compressionRate].to_f
 
       # glb-texture-converterを実行
-      converter_command =
-        "npx glb-texture-converter #{params[:file][:tempfile].path} #{intermediate_tempfile.path} #{compression_rate}"
+      # 引数を配列で渡し、シェルを通さずに実行する
+      converter_command = [
+        'npx', 'glb-texture-converter',
+        params[:file][:tempfile].path, intermediate_tempfile.path, compression_rate.to_s
+      ]
 
-      converter_stdout, converter_stderr, converter_status = Open3.capture3(converter_command)
+      converter_stdout, converter_stderr, converter_status = Open3.capture3(*converter_command)
 
       unless converter_status.success?
         halt 500, json(message: "glb-texture-converterの実行エラー: #{converter_stderr}")
       end
 
       # gltf-transformを実行
-      transform_command =
-        "npx gltf-transform simplify" \
-        " #{intermediate_tempfile.path}" \
-        " #{output_tempfile.path}" \
-        " --ratio #{ratio}" \
-        " --error #{error}"
+      transform_command = [
+        'npx', 'gltf-transform', 'simplify',
+        intermediate_tempfile.path,
+        output_tempfile.path,
+        '--ratio', ratio.to_s,
+        '--error', error.to_s
+      ]
 
-      transform_stdout, transform_stderr, transform_status = Open3.capture3(transform_command)
+      transform_stdout, transform_stderr, transform_status = Open3.capture3(*transform_command)
 
       if transform_status.success?
         content_type 'application/octet-stream'
