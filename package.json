@@ -23,5 +23,9 @@
     "@gltf-transform/cli": "^4.5.1",
     "glb-texture-converter": "github:nagata-minoru/glb-texture-converter",
     "three": "^0.186.1"
+  },
+  "overrides": {
+    "glob": "14.0.2",
+    "minimatch": "11.0.1"
   }
 }
