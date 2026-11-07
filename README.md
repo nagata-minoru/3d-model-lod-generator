@@ -12,7 +12,10 @@
 
 ## 前提条件
 - ruby 3.2 以上（Ruby 4 でも動く）
-- Node.js 12.0.0 以上
+- Node.js 22.12.0 以上の LTS（22 / 24 / 26。CI は 24 で動かしている）
+- ImageMagick（モデルを象徴する色の計算に mini_magick 経由で使う）
+  - macOS: `brew install imagemagick`
+  - Ubuntu: `sudo apt-get install imagemagick`
 
 ## インストール
 
@@ -52,6 +55,7 @@ localhost:4567にアクセスしてください。
   ```
 
   `POST /api/create_lod` のテストは実際に glb-texture-converter と gltf-transform を動かすので、先に `npm install` が必要です。
+  `POST /api/save_image` のテストは ImageMagick がないと 500 になって失敗します。
 
 - フロントエンド（Vitest）:
   ```

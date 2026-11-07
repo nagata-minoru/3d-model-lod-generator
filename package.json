@@ -11,6 +11,9 @@
     "preview": "vite preview",
     "test": "vitest"
   },
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || >=26.0.0"
+  },
   "devDependencies": {
     "@types/three": "^0.186.0",
     "concurrently": "^10.0.6",
@@ -23,5 +26,9 @@
     "@gltf-transform/cli": "^4.5.1",
     "glb-texture-converter": "github:nagata-minoru/glb-texture-converter",
     "three": "^0.186.1"
+  },
+  "overrides": {
+    "glob": "14.0.2",
+    "minimatch": "11.0.1"
   }
 }
