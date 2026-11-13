@@ -11,7 +11,7 @@
 - モデルを読み込んだとき、そのモデルを象徴する色を決定します。
 
 ## 前提条件
-- ruby 3.2 以上（Ruby 4 でも動く）
+- ruby 3.3 以上（Ruby 4 でも動く）
 - Node.js 22.12.0 以上の LTS（22 / 24 / 26。CI は 24 で動かしている）
 - ImageMagick（モデルを象徴する色の計算に mini_magick 経由で使う）
   - macOS: `brew install imagemagick`

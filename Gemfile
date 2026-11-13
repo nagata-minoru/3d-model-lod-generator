@@ -1,5 +1,8 @@
 source 'https://rubygems.org'
 
+# Dependabot が Ruby 3.2 以下で動かない gem を選ばないよう、対応する Ruby の範囲を書く
+ruby '>= 3.3'
+
 gem 'sinatra'
 gem "sinatra-contrib"
 gem "rackup", "~> 2.3"
