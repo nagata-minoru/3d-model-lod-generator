@@ -13,7 +13,7 @@ gem "mini_magick"
 # 開発環境用のgem
 group :development do
   gem 'pry', '~> 0.16'  # デバッグ用
-  gem 'rubocop', '~> 1.50'  # コードスタイルチェック用
+  gem 'rubocop', '~> 1.92'  # コードスタイルチェック用
 end
 
 # テスト用のgem
