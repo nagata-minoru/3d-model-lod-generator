@@ -33,8 +33,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # README の前提条件（Ruby 3.2 以上、Ruby 4 でも動く）に合わせる
-        ruby: ['3.2', '4.0']
+        # README の前提条件（Ruby 3.3 以上、Ruby 4 でも動く）に合わせる
+        ruby: ['3.3', '4.0']
     steps:
       - uses: actions/checkout@v7
       # 画像の平均色の計算に mini_magick（ImageMagick）を使う
